@@ -87,6 +87,8 @@ function Start-GpuCooldownSleep {
     )
 
     process {
+        Assert-GpuCooldownMonitoringSupport
+
         $waitParameters = @{
             TargetTemperature   = $TargetTemperature
             PollIntervalSeconds = $PollIntervalSeconds

@@ -32,6 +32,7 @@ The module currently exports these commands:
 - `Get-GpuCooldownTemperature`
 - `Wait-GpuCooldown`
 - `Start-GpuCooldownSleep`
+- `Test-GpuCooldownSupport`
 
 These commands provide the first end-to-end slice of the workflow:
 
@@ -54,6 +55,12 @@ Discover the supported GPU device:
 
 ```powershell
 Get-GpuCooldownDevice
+```
+
+Review the current environment and dependency readiness:
+
+```powershell
+Test-GpuCooldownSupport
 ```
 
 Get the current temperature for the default supported device:

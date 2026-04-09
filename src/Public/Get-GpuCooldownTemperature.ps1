@@ -57,6 +57,8 @@ function Get-GpuCooldownTemperature {
     )
 
     process {
+        Assert-GpuCooldownMonitoringSupport
+
         $resolveParameters = @{}
         if ($PSCmdlet.ParameterSetName -eq 'InputObject') {
             $resolveParameters.InputObject = $InputObject

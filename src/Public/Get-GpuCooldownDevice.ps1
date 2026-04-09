@@ -33,6 +33,12 @@ function Get-GpuCooldownDevice {
         [string]$Provider
     )
 
+    $providerChecks = Get-GpuCooldownProviderSupportStatus
+    if (-not $providerChecks.IsProviderAvailable) {
+        Write-Verbose $providerChecks.Message
+        return @()
+    }
+
     $supportedProviders = @(
         @{
             Name    = 'Nvidia'

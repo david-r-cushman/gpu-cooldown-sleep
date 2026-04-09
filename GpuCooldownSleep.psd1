@@ -12,6 +12,7 @@
         'Get-GpuCooldownTemperature'
         'Wait-GpuCooldown'
         'Start-GpuCooldownSleep'
+        'Test-GpuCooldownSupport'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()

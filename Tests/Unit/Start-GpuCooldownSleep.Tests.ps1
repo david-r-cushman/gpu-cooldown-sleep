@@ -36,6 +36,7 @@ Describe 'Start-GpuCooldownSleep' {
             $result = Start-GpuCooldownSleep -TargetTemperature 40 -Confirm:$false
 
             $result.Status | Should -Be 'TargetReached'
+            $result.SleepAction | Should -Be 'Requested'
             Should -Invoke Start-SystemSleep -ModuleName GpuCooldownSleep -Times 1 -Exactly
         }
 
@@ -43,6 +44,7 @@ Describe 'Start-GpuCooldownSleep' {
             $result = Start-GpuCooldownSleep -TargetTemperature 40 -WhatIf
 
             $result.Status | Should -Be 'TargetReached'
+            $result.SleepAction | Should -Be 'Skipped'
             Should -Invoke Start-SystemSleep -ModuleName GpuCooldownSleep -Times 0 -Exactly
         }
 
@@ -86,6 +88,7 @@ Describe 'Start-GpuCooldownSleep' {
             $result = Start-GpuCooldownSleep -TargetTemperature 40 -Confirm:$false
 
             $result.Status | Should -Be 'TimedOut'
+            $result.SleepAction | Should -Be 'NotAttempted'
             Should -Invoke Start-SystemSleep -ModuleName GpuCooldownSleep -Times 0 -Exactly
         }
     }

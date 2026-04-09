@@ -103,14 +103,19 @@ function Start-GpuCooldownSleep {
             $waitResult = Wait-GpuCooldown @waitParameters
 
             if ($waitResult.Status -ne 'TargetReached') {
-                return $waitResult
+                return New-GpuCooldownSleepResultObject -WaitResult $waitResult -SleepAction 'NotAttempted'
             }
 
+            $sleepAction = 'NotAttempted'
             if ($PSCmdlet.ShouldProcess($waitResult.Name, "Put system to sleep after GPU cooldown reached ${TargetTemperature}C")) {
                 Start-SystemSleep
+                $sleepAction = 'Requested'
+            }
+            else {
+                $sleepAction = 'Skipped'
             }
 
-            return $waitResult
+            return New-GpuCooldownSleepResultObject -WaitResult $waitResult -SleepAction $sleepAction
         }
         finally {
             if ($null -ne $keepAwakeToken) {

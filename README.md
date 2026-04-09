@@ -38,7 +38,7 @@ These commands provide the first end-to-end slice of the workflow:
 - discover supported GPU devices
 - retrieve normalized temperature data
 - wait for cooldown using a timeout-aware loop
-- initiate sleep with `ShouldProcess` support
+- initiate sleep with `ShouldProcess` support and an explicit result contract
 
 The current provider implementation is NVIDIA-based and uses `nvidia-smi`.
 

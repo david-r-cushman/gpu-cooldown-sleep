@@ -5,7 +5,10 @@ function Resolve-GpuCooldownDevice {
         [psobject]$InputObject,
 
         [Parameter()]
-        [string]$DeviceId
+        [string]$DeviceId,
+
+        [Parameter()]
+        [string]$Name
     )
 
     if ($PSBoundParameters.ContainsKey('InputObject')) {
@@ -25,13 +28,26 @@ function Resolve-GpuCooldownDevice {
         return $matchingDevice[0]
     }
 
+    if ($PSBoundParameters.ContainsKey('Name')) {
+        $matchingDevice = @(Get-GpuCooldownDevice | Where-Object { $_.Name -eq $Name })
+        if ($matchingDevice.Count -eq 0) {
+            throw "No supported GPU device was found for Name '$Name'."
+        }
+
+        if ($matchingDevice.Count -gt 1) {
+            throw "Multiple supported GPU devices were found for Name '$Name'. Use -DeviceId for a precise selection."
+        }
+
+        return $matchingDevice[0]
+    }
+
     $discoverableDevices = @(Get-GpuCooldownDevice)
     if ($discoverableDevices.Count -eq 0) {
         throw 'No supported GPU devices were discovered.'
     }
 
     if ($discoverableDevices.Count -gt 1) {
-        throw 'Multiple supported GPU devices were discovered. Specify -DeviceId or pipe a device from Get-GpuCooldownDevice.'
+        throw 'Multiple supported GPU devices were discovered. Specify -DeviceId, -Name, or pipe a device from Get-GpuCooldownDevice.'
     }
 
     return $discoverableDevices[0]

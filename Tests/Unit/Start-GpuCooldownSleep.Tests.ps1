@@ -92,4 +92,34 @@ Describe 'Start-GpuCooldownSleep' {
             Should -Invoke Start-SystemSleep -ModuleName GpuCooldownSleep -Times 0 -Exactly
         }
     }
+
+    Context 'when selecting by friendly name' {
+        BeforeAll {
+            Mock -CommandName Wait-GpuCooldown -ModuleName GpuCooldownSleep -MockWith {
+                [pscustomobject]@{
+                    Provider                = 'Nvidia'
+                    Vendor                  = 'NVIDIA'
+                    Name                    = 'NVIDIA GeForce RTX 4080'
+                    DeviceId                = 'nvidia:00000000:01:00.0'
+                    ProviderDeviceId        = '00000000:01:00.0'
+                    PciBusId                = '00000000:01:00.0'
+                    TargetTemperature       = 40
+                    FinalTemperatureCelsius = 40
+                    Status                  = 'TargetReached'
+                    StartedAt               = [datetime]'2026-04-09T12:00:00'
+                    CompletedAt             = [datetime]'2026-04-09T12:01:00'
+                    DurationSeconds         = 60
+                }
+            }
+
+            Mock -CommandName Start-SystemSleep -ModuleName GpuCooldownSleep
+        }
+
+        It 'passes the friendly name through to the wait command' {
+            $result = Start-GpuCooldownSleep -Name 'NVIDIA GeForce RTX 4080' -TargetTemperature 40 -Confirm:$false
+
+            $result.Name | Should -Be 'NVIDIA GeForce RTX 4080'
+            Should -Invoke Wait-GpuCooldown -ModuleName GpuCooldownSleep -ParameterFilter { $Name -eq 'NVIDIA GeForce RTX 4080' } -Times 1 -Exactly
+        }
+    }
 }

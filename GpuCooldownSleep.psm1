@@ -11,6 +11,8 @@ foreach ($file in $publicFiles) {
     . $file.FullName
 }
 
+Register-GpuCooldownArgumentCompleter
+
 $exportedFunctions = $publicFiles.BaseName
 if ($exportedFunctions.Count -gt 0) {
     Export-ModuleMember -Function $exportedFunctions

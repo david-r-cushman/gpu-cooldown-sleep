@@ -15,6 +15,9 @@ function Get-GpuCooldownTemperature {
 .PARAMETER DeviceId
     The module-level device identifier for the GPU to query.
 
+.PARAMETER Name
+    The friendly GPU name to query.
+
 .EXAMPLE
     Get-GpuCooldownTemperature
 
@@ -30,6 +33,11 @@ function Get-GpuCooldownTemperature {
 
     Returns the current temperature for the specified device.
 
+.EXAMPLE
+    Get-GpuCooldownTemperature -Name 'NVIDIA GeForce RTX 2070 SUPER'
+
+    Returns the current temperature for the specified GPU by friendly device name.
+
 .OUTPUTS
     PSCustomObject
 #>
@@ -41,7 +49,11 @@ function Get-GpuCooldownTemperature {
 
         [Parameter(Mandatory = $true, ParameterSetName = 'DeviceId')]
         [ValidateNotNullOrEmpty()]
-        [string]$DeviceId
+        [string]$DeviceId,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name
     )
 
     process {
@@ -51,6 +63,9 @@ function Get-GpuCooldownTemperature {
         }
         elseif ($PSCmdlet.ParameterSetName -eq 'DeviceId') {
             $resolveParameters.DeviceId = $DeviceId
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'Name') {
+            $resolveParameters.Name = $Name
         }
 
         $device = Resolve-GpuCooldownDevice @resolveParameters

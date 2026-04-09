@@ -62,6 +62,12 @@ Get the current temperature for the default supported device:
 Get-GpuCooldownTemperature
 ```
 
+Target a GPU by friendly name:
+
+```powershell
+Get-GpuCooldownTemperature -Name 'NVIDIA GeForce RTX 2070 SUPER'
+```
+
 Wait for the GPU to cool to a target temperature without changing system power state:
 
 ```powershell
@@ -73,6 +79,8 @@ Exercise the full sleep command safely with `-WhatIf`:
 ```powershell
 Start-GpuCooldownSleep -TargetTemperature 40 -PreventSystemSleep -ShowProgress -WhatIf
 ```
+
+The `-Name` parameter is intended to be the friendlier interactive selection path, while `-DeviceId` remains the more stable automation-oriented selector.
 
 ## Design Priorities
 

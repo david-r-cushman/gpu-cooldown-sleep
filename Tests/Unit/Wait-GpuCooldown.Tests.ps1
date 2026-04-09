@@ -105,4 +105,43 @@ Describe 'Wait-GpuCooldown' {
             $result.FinalTemperatureCelsius | Should -Be 55
         }
     }
+
+    Context 'when selecting by friendly name' {
+        BeforeAll {
+            Mock -CommandName Get-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
+                @(
+                    [pscustomobject]@{
+                        Provider            = 'Nvidia'
+                        Vendor              = 'NVIDIA'
+                        Name                = 'NVIDIA GeForce RTX 4080'
+                        DeviceId            = 'nvidia:00000000:01:00.0'
+                        ProviderDeviceId    = '00000000:01:00.0'
+                        PciBusId            = '00000000:01:00.0'
+                        IsSupported         = $true
+                        IsSelectedByDefault = $true
+                    }
+                )
+            }
+
+            Mock -CommandName Get-GpuCooldownTemperature -ModuleName GpuCooldownSleep -MockWith {
+                [pscustomobject]@{
+                    Provider            = 'Nvidia'
+                    Vendor              = 'NVIDIA'
+                    Name                = 'NVIDIA GeForce RTX 4080'
+                    DeviceId            = 'nvidia:00000000:01:00.0'
+                    ProviderDeviceId    = '00000000:01:00.0'
+                    PciBusId            = '00000000:01:00.0'
+                    TemperatureCelsius  = 40
+                    RetrievedAt         = Get-Date
+                }
+            }
+        }
+
+        It 'supports name-based selection' {
+            $result = Wait-GpuCooldown -Name 'NVIDIA GeForce RTX 4080' -TargetTemperature 40
+
+            $result.Status | Should -Be 'TargetReached'
+            $result.Name | Should -Be 'NVIDIA GeForce RTX 4080'
+        }
+    }
 }

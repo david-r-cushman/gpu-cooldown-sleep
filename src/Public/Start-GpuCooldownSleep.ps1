@@ -19,6 +19,9 @@ function Start-GpuCooldownSleep {
 .PARAMETER DeviceId
     The module-level device identifier for the GPU to monitor.
 
+.PARAMETER Name
+    The friendly GPU name to monitor.
+
 .PARAMETER PollIntervalSeconds
     The number of seconds to wait between temperature checks.
 
@@ -42,6 +45,11 @@ function Start-GpuCooldownSleep {
     Monitors the supplied GPU device, requests that the system remain awake during the
     wait period, and puts the system to sleep if the target temperature is reached.
 
+.EXAMPLE
+    Start-GpuCooldownSleep -Name 'NVIDIA GeForce RTX 2070 SUPER' -TargetTemperature 40 -WhatIf
+
+    Targets a GPU by friendly device name and shows the intended sleep action without performing it.
+
 .OUTPUTS
     PSCustomObject
 #>
@@ -58,6 +66,10 @@ function Start-GpuCooldownSleep {
         [Parameter(Mandatory = $true, ParameterSetName = 'DeviceId')]
         [ValidateNotNullOrEmpty()]
         [string]$DeviceId,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
 
         [Parameter()]
         [ValidateRange(1, 3600)]
@@ -91,6 +103,9 @@ function Start-GpuCooldownSleep {
         }
         elseif ($PSCmdlet.ParameterSetName -eq 'DeviceId') {
             $waitParameters.DeviceId = $DeviceId
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'Name') {
+            $waitParameters.Name = $Name
         }
 
         $keepAwakeToken = $null

@@ -19,6 +19,9 @@ function Wait-GpuCooldown {
 .PARAMETER DeviceId
     The module-level device identifier for the GPU to monitor.
 
+.PARAMETER Name
+    The friendly GPU name to monitor.
+
 .PARAMETER PollIntervalSeconds
     The number of seconds to wait between temperature checks.
 
@@ -38,6 +41,11 @@ function Wait-GpuCooldown {
 
     Waits for the supplied GPU device to reach the target temperature.
 
+.EXAMPLE
+    Wait-GpuCooldown -Name 'NVIDIA GeForce RTX 2070 SUPER' -TargetTemperature 40
+
+    Waits for the specified GPU device by friendly name.
+
 .OUTPUTS
     PSCustomObject
 #>
@@ -54,6 +62,10 @@ function Wait-GpuCooldown {
         [Parameter(Mandatory = $true, ParameterSetName = 'DeviceId')]
         [ValidateNotNullOrEmpty()]
         [string]$DeviceId,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
 
         [Parameter()]
         [ValidateRange(1, 3600)]
@@ -74,6 +86,9 @@ function Wait-GpuCooldown {
         }
         elseif ($PSCmdlet.ParameterSetName -eq 'DeviceId') {
             $resolveParameters.DeviceId = $DeviceId
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'Name') {
+            $resolveParameters.Name = $Name
         }
 
         $device = Resolve-GpuCooldownDevice @resolveParameters

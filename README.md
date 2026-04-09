@@ -1,111 +1,70 @@
-# PowerShell 7.4 Template: Available Anywhere
+# GPU Cooldown Sleep
 
-This repository is a GitHub template that provides a baseline development environment for new PowerShell projects.
+This repository is a PowerShell project for monitoring GPU temperature and putting a Windows system to sleep once the GPU has cooled to a defined target.
 
-It is intended to give new repositories a consistent starting point for:
+The project started from a real personal need: after GPU-intensive work ends, the system may still be too warm to sleep immediately. Rather than manually watching temperatures and waiting, the goal is to automate that handoff safely.
 
-- PowerShell 7.4 development
-- local VS Code development
-- Docker Dev Container development
-- GitHub Codespaces development
-- formatting and linting standards
-- Pester-based testing structure
-- secure-by-default development habits
+## Current Status
 
-Project-specific scripts, modules, tests, and automation are expected to be added in repositories created from this template.
+This repository is in early development.
 
-The template is designed to support both script-based and module-oriented PowerShell Core projects, with built-in structure for testing through Pester.
+The project direction has been defined, but the module implementation is still being built out from the PowerShell project template baseline.
 
-## Mission
+For the current design intent, see [`docs/project-direction.md`](docs/project-direction.md).
 
-This template gives new PowerShell repositories a ready-to-use development baseline that can be used locally, in a Dev Container, or in GitHub Codespaces.
+## Problem Space
 
-The goal is to reduce credential exposure, improve environmental consistency, and make it easier to work from almost anywhere without rebuilding the same setup each time.
+The initial problem this project is trying to solve is narrow and practical:
 
-By using Docker-based development environments, third-party module execution, cloud CLI operations, and script testing can be performed inside a Linux-based workspace instead of directly on the host operating system.
+- poll GPU temperature from a supported provider
+- wait until the temperature reaches a target threshold
+- avoid running indefinitely by enforcing a timeout
+- provide useful progress feedback while waiting
+- put the system to sleep safely once the target condition is met
 
-## Architecture And Stack
+The first implementation will likely be NVIDIA-first because that is the hardware currently available for testing, but the repository is intentionally being shaped so that additional GPU providers can be added later.
 
-- **Runtime:** PowerShell 7.4.x (LTS) on Ubuntu 22.04
-- **Development Modes:** Local VS Code, Docker Dev Containers, and GitHub Codespaces
-- **Container Runtime:** Docker Desktop via WSL 2 backend for local container use
-- **Isolation Strategy:** The container is intended to minimize exposure of host credentials and host-resident developer tooling inside the development environment
-- **Credential Separation:** GitHub Copilot and similar authenticated extensions are intentionally excluded from the container environment
-- **Ephemeral Cloud Identity:** Cloud authentication is expected to occur inside the container session when needed by using commands such as `az login`
-- **Governance:** Integrated `PSScriptAnalyzer`, `EditorConfig`, and Markdown linting support
+## Design Priorities
 
-## Key Features
+- vendor-neutral project structure
+- disciplined PowerShell module organization
+- safe power-state control and failure handling
+- useful observability during cooldown monitoring
+- testable orchestration logic
 
-### Automated Tooling Injection
+## Intended Shape
 
-The `Dockerfile` provisions a professional PowerShell engineering toolkit:
+This repository is expected to grow into a properly organized PowerShell module with:
 
-- **Pester:** For unit and integration testing
-- **PSScriptAnalyzer:** To enforce PowerShell best practices and security rules
-- **Azure CLI:** Pre-installed for cloud resource management
-- **PSReadLine:** Configured for a more efficient terminal experience
+- public commands under [`src/Public`](src/Public)
+- shared helpers under [`src/Private`](src/Private)
+- tests under [`Tests`](Tests)
+- supporting notes under [`docs`](docs)
 
-### Tailored Developer Experience
+The goal is to build this as a maintainable PowerShell project, not leave it as a single experimental script.
 
-The environment injects a specialized PowerShell profile that enables:
+## Non-Goals
 
-- **Predictive IntelliSense:** Leveraging local command history
-- **ListView Completion:** High-visibility completion menus
-- **Visual Feedback:** A clear startup message confirming the container environment has loaded
+The initial version of this project is not intended to be:
 
-## Editor Vs Container Trust Boundary
+- a full hardware monitoring suite
+- a fan-control or overclocking tool
+- a general thermal-management framework
+- a polished multi-vendor implementation from day one
 
-This template distinguishes between the host editor experience and the in-container development environment.
+## Why This Repo Exists
 
-VS Code on the host may use convenience extensions such as GitHub Copilot or pull request tooling. The development container intentionally excludes those extensions and their authentication state so that code executed inside the container does not gain access to sensitive host credentials or cached tokens.
+This project may or may not eventually earn a place in the public portfolio, but it is absolutely worth pursuing as a real engineering exercise.
 
-That same repository structure also supports GitHub Codespaces, providing a browser-accessible development environment when local workstation access is not the preferred option.
+If developed well, it can demonstrate the ability to:
 
-## What This Template Does Not Include
+- take a niche real-world problem seriously
+- design safe automation around system power state
+- structure provider-specific logic cleanly
+- turn a rough utility idea into a maintainable PowerShell module
 
-This template does not ship with project-specific module code, public functions, private helpers, or Pester test implementations.
+## Development Notes
 
-Those are expected to be added in repositories created from this template. The goal is to provide a clean baseline without placeholder business logic that downstream projects must remove.
-
-## Expected Contents Of Repositories Created From This Template
-
-Repositories created from this template are expected to add:
-
-- PowerShell source files under `src`
-- Pester tests under `Tests`
-- project-specific documentation under `docs`
-- optional module manifest and build or validation automation as needed
-
-This template provides the environment, conventions, and structure. Downstream repositories provide the implementation.
-
-## Prerequisites And Setup
-
-1. **Host OS:** Windows 11 with WSL 2 enabled
-2. **Tools:** Docker Desktop and VS Code with the **Dev Containers** extension
-3. **Launch:** Open the folder in VS Code and select **Reopen in Container** when prompted
-
-If you are using GitHub Codespaces instead, create a new Codespace from a repository generated from this template and open the project in the browser-based editor.
-
-## Engineering Philosophy
-
-> *"Zero Margin for Error"*
-
-This template carries over a high-consequence operational mindset into Infrastructure as Code and automation work.
-
-- **Deterministic Base Runtime:** The development container is built from a pinned PowerShell 7.4 on Ubuntu 22.04 base image to reduce environmental drift
-- **Controlled Tooling Baseline:** Core development tools are installed automatically in the container so that new repositories begin from a consistent baseline, even though not every tool is currently version-pinned
-- **Process Integrity:** Code is not just logic. It is a service. Linting, testing, and deliberate structure are used to keep behavior predictable
-- **Respect For State:** Any function that changes a system's state should support `-WhatIf` and `-Confirm` parameters
-- **Clean Development Boundary:** Development tools should not unnecessarily expose host credentials or host-resident auth state to code running in the container
-
-That same philosophy also shapes how AI assistance is used in this template and in repositories created from it.
-
-AI is treated as a drafting accelerator, not as a substitute for engineering ownership. Constraints, review standards, safety checks, and final accountability remain human responsibilities.
-
-For the deeper operating model behind that approach, see [`docs/powershell-ai-operating-model.md`](docs/powershell-ai-operating-model.md).
-
-## Troubleshooting
-
-- **Rebuilding:** Use `F1 > Dev Containers: Rebuild Container Without Cache` to force a clean layer refresh
-- **Line Ending Errors:** Verify your local `git config core.autocrlf` is set to `input` or `false`
-- **Identity Issues:** Run `az login` inside the container terminal to authenticate your cloud session for that environment
+- The repository was created from [`pwsh-dev-template`](https://github.com/david-r-cushman/pwsh-dev-template).
+- The starting direction for this repo intentionally favors clarity and structure over trying to rush straight into implementation.
+- Earlier rough-draft work is being treated as reference material, not as code that must be migrated directly.

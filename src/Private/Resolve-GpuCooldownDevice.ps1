@@ -20,16 +20,18 @@ function Resolve-GpuCooldownDevice {
     }
 
     if ($PSBoundParameters.ContainsKey('DeviceId')) {
-        $matchingDevice = @(Get-GpuCooldownDevice | Where-Object { $_.DeviceId -eq $DeviceId })
+        $matchingDevice = @(Get-GpuCooldownDeviceInternal | Where-Object { $_.DeviceId -eq $DeviceId })
         if ($matchingDevice.Count -eq 0) {
             throw "No supported GPU device was found for DeviceId '$DeviceId'."
         }
 
-        return $matchingDevice[0]
+        $selectedDevice = $matchingDevice[0]
+        Write-GpuCooldownVerboseEvent -EventName 'DeviceSelected' -Device $selectedDevice -Message 'Selected GPU device by DeviceId.'
+        return $selectedDevice
     }
 
     if ($PSBoundParameters.ContainsKey('Name')) {
-        $matchingDevice = @(Get-GpuCooldownDevice | Where-Object { $_.Name -eq $Name })
+        $matchingDevice = @(Get-GpuCooldownDeviceInternal | Where-Object { $_.Name -eq $Name })
         if ($matchingDevice.Count -eq 0) {
             throw "No supported GPU device was found for Name '$Name'."
         }
@@ -38,10 +40,12 @@ function Resolve-GpuCooldownDevice {
             throw "Multiple supported GPU devices were found for Name '$Name'. Use -DeviceId for a precise selection."
         }
 
-        return $matchingDevice[0]
+        $selectedDevice = $matchingDevice[0]
+        Write-GpuCooldownVerboseEvent -EventName 'DeviceSelected' -Device $selectedDevice -Message 'Selected GPU device by friendly name.'
+        return $selectedDevice
     }
 
-    $discoverableDevices = @(Get-GpuCooldownDevice)
+    $discoverableDevices = @(Get-GpuCooldownDeviceInternal)
     if ($discoverableDevices.Count -eq 0) {
         throw 'No supported GPU devices were discovered.'
     }
@@ -50,5 +54,6 @@ function Resolve-GpuCooldownDevice {
         throw 'Multiple supported GPU devices were discovered. Specify -DeviceId, -Name, or pipe a device from Get-GpuCooldownDevice.'
     }
 
+    Write-GpuCooldownVerboseEvent -EventName 'DeviceSelected' -Device $discoverableDevices[0] -Message 'Selected the only supported GPU device.'
     return $discoverableDevices[0]
 }

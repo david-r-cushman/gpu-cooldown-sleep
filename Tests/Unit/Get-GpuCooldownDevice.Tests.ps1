@@ -6,6 +6,15 @@ BeforeAll {
 Describe 'Get-GpuCooldownDevice' {
     Context 'when NVIDIA discovery returns a single device' {
         BeforeAll {
+            Mock -CommandName Get-GpuCooldownProviderSupportStatus -ModuleName GpuCooldownSleep -MockWith {
+                [pscustomobject]@{
+                    IsProviderAvailable = $true
+                    ProviderName        = 'Nvidia'
+                    ProviderCommand     = 'nvidia-smi'
+                    Message             = 'nvidia-smi is available.'
+                }
+            }
+
             Mock -CommandName Get-NvidiaGpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
                 @(
                     [pscustomobject]@{
@@ -34,6 +43,15 @@ Describe 'Get-GpuCooldownDevice' {
 
     Context 'when NVIDIA discovery returns multiple devices' {
         BeforeAll {
+            Mock -CommandName Get-GpuCooldownProviderSupportStatus -ModuleName GpuCooldownSleep -MockWith {
+                [pscustomobject]@{
+                    IsProviderAvailable = $true
+                    ProviderName        = 'Nvidia'
+                    ProviderCommand     = 'nvidia-smi'
+                    Message             = 'nvidia-smi is available.'
+                }
+            }
+
             Mock -CommandName Get-NvidiaGpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
                 @(
                     [pscustomobject]@{
@@ -70,6 +88,15 @@ Describe 'Get-GpuCooldownDevice' {
 
     Context 'when filtering by provider' {
         BeforeAll {
+            Mock -CommandName Get-GpuCooldownProviderSupportStatus -ModuleName GpuCooldownSleep -MockWith {
+                [pscustomobject]@{
+                    IsProviderAvailable = $true
+                    ProviderName        = 'Nvidia'
+                    ProviderCommand     = 'nvidia-smi'
+                    Message             = 'nvidia-smi is available.'
+                }
+            }
+
             Mock -CommandName Get-NvidiaGpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith { @() }
         }
 

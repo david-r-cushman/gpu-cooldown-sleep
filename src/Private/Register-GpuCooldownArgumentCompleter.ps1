@@ -12,7 +12,7 @@ function Register-GpuCooldownArgumentCompleter {
         Register-ArgumentCompleter -CommandName $commandName -ParameterName 'Name' -ScriptBlock {
             param($commandName, $parameterName, $wordToComplete)
 
-            $discoveredDevices = @(Get-GpuCooldownDevice)
+            $discoveredDevices = @(Get-GpuCooldownDeviceInternal)
             foreach ($device in $discoveredDevices) {
                 if ($device.Name -like "$wordToComplete*") {
                     [System.Management.Automation.CompletionResult]::new(

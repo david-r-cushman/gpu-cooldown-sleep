@@ -94,7 +94,7 @@ function Wait-GpuCooldown {
         }
 
         $device = Resolve-GpuCooldownDevice @resolveParameters
-        $startedAt = Get-Date
+        $startedAt = Get-GpuCooldownNow
         $timeoutAt = $startedAt.AddMinutes($TimeoutMinutes)
 
         Write-GpuCooldownVerboseEvent -EventName 'CooldownWaitStart' -Device $device -Message ("Monitoring started with target temperature {0}C." -f $TargetTemperature)
@@ -103,7 +103,7 @@ function Wait-GpuCooldown {
         try {
             do {
                 $temperatureReading = Get-GpuCooldownTemperature -InputObject $device
-                $currentTime = Get-Date
+                $currentTime = Get-GpuCooldownNow
                 $elapsed = $currentTime - $startedAt
 
                 if ($ShowProgress.IsPresent) {

@@ -6,7 +6,9 @@ BeforeAll {
 Describe 'Get-GpuCooldownTemperature' {
     Context 'when a single supported device is discoverable' {
         BeforeAll {
-            Mock -CommandName Get-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
+            Mock -CommandName Get-GpuCooldownDeviceInternal -ModuleName GpuCooldownSleep -MockWith {
                 @(
                     [pscustomobject]@{
                         Provider            = 'Nvidia'
@@ -47,7 +49,9 @@ Describe 'Get-GpuCooldownTemperature' {
 
     Context 'when multiple supported devices are discoverable' {
         BeforeAll {
-            Mock -CommandName Get-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
+            Mock -CommandName Get-GpuCooldownDeviceInternal -ModuleName GpuCooldownSleep -MockWith {
                 @(
                     [pscustomobject]@{
                         Provider            = 'Nvidia'
@@ -80,6 +84,8 @@ Describe 'Get-GpuCooldownTemperature' {
 
     Context 'when a device object is provided on the pipeline' {
         BeforeAll {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
             Mock -CommandName Get-NvidiaGpuCooldownTemperature -ModuleName GpuCooldownSleep -MockWith {
                 param($Device)
 
@@ -117,7 +123,9 @@ Describe 'Get-GpuCooldownTemperature' {
 
     Context 'when selecting a device by friendly name' {
         BeforeAll {
-            Mock -CommandName Get-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
+            Mock -CommandName Get-GpuCooldownDeviceInternal -ModuleName GpuCooldownSleep -MockWith {
                 @(
                     [pscustomobject]@{
                         Provider            = 'Nvidia'

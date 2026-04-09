@@ -21,7 +21,7 @@ function Update-GpuCooldownProgress {
     )
 
     $totalDurationSeconds = [math]::Max((New-TimeSpan -Start $StartedAt -End $TimeoutAt).TotalSeconds, 1)
-    $elapsedSeconds = (New-TimeSpan -Start $StartedAt -End (Get-Date)).TotalSeconds
+    $elapsedSeconds = (New-TimeSpan -Start $StartedAt -End (Get-GpuCooldownNow)).TotalSeconds
     $percentComplete = [math]::Min([math]::Round(($elapsedSeconds / $totalDurationSeconds) * 100, 0), 99)
 
     $status = '{0}C current, target {1}C, timeout at {2}' -f $TemperatureReading.TemperatureCelsius, $TargetTemperature, $TimeoutAt.ToString('HH:mm:ss')

@@ -11,19 +11,24 @@ Describe 'Wait-GpuCooldown' {
             $script:temperatureSequence.Enqueue(44)
             $script:temperatureSequence.Enqueue(40)
 
-            Mock -CommandName Get-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
-                @(
-                    [pscustomobject]@{
-                        Provider            = 'Nvidia'
-                        Vendor              = 'NVIDIA'
-                        Name                = 'NVIDIA GeForce RTX 4080'
-                        DeviceId            = 'nvidia:00000000:01:00.0'
-                        ProviderDeviceId    = '00000000:01:00.0'
-                        PciBusId            = '00000000:01:00.0'
-                        IsSupported         = $true
-                        IsSelectedByDefault = $true
-                    }
-                )
+            $script:timeSequence = [System.Collections.Generic.Queue[datetime]]::new()
+            $script:timeSequence.Enqueue([datetime]'2026-04-09T12:00:00')
+            $script:timeSequence.Enqueue([datetime]'2026-04-09T12:00:01')
+            $script:timeSequence.Enqueue([datetime]'2026-04-09T12:00:02')
+
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
+            Mock -CommandName Resolve-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
+                [pscustomobject]@{
+                    Provider            = 'Nvidia'
+                    Vendor              = 'NVIDIA'
+                    Name                = 'NVIDIA GeForce RTX 4080'
+                    DeviceId            = 'nvidia:00000000:01:00.0'
+                    ProviderDeviceId    = '00000000:01:00.0'
+                    PciBusId            = '00000000:01:00.0'
+                    IsSupported         = $true
+                    IsSelectedByDefault = $true
+                }
             }
 
             Mock -CommandName Get-GpuCooldownTemperature -ModuleName GpuCooldownSleep -MockWith {
@@ -38,6 +43,14 @@ Describe 'Wait-GpuCooldown' {
                     TemperatureCelsius  = $nextTemperature
                     RetrievedAt         = Get-Date
                 }
+            }
+
+            Mock -CommandName Get-GpuCooldownNow -ModuleName GpuCooldownSleep -MockWith {
+                if ($script:timeSequence.Count -gt 0) {
+                    return $script:timeSequence.Dequeue()
+                }
+
+                return [datetime]'2026-04-09T12:00:03'
             }
 
             Mock -CommandName Start-Sleep -ModuleName GpuCooldownSleep
@@ -67,6 +80,13 @@ Describe 'Wait-GpuCooldown' {
 
     Context 'when the timeout is reached before the target temperature' {
         BeforeAll {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
+            $script:timeSequence = [System.Collections.Generic.Queue[datetime]]::new()
+            $script:timeSequence.Enqueue([datetime]'2026-04-09T12:00:00')
+            $script:timeSequence.Enqueue([datetime]'2026-04-09T12:00:30')
+            $script:timeSequence.Enqueue([datetime]'2026-04-09T12:01:01')
+
             Mock -CommandName Resolve-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
                 [pscustomobject]@{
                     Provider            = 'Nvidia'
@@ -93,6 +113,14 @@ Describe 'Wait-GpuCooldown' {
                 }
             }
 
+            Mock -CommandName Get-GpuCooldownNow -ModuleName GpuCooldownSleep -MockWith {
+                if ($script:timeSequence.Count -gt 0) {
+                    return $script:timeSequence.Dequeue()
+                }
+
+                return [datetime]'2026-04-09T12:01:02'
+            }
+
             Mock -CommandName Start-Sleep -ModuleName GpuCooldownSleep
             Mock -CommandName Update-GpuCooldownProgress -ModuleName GpuCooldownSleep
             Mock -CommandName Clear-GpuCooldownProgress -ModuleName GpuCooldownSleep
@@ -103,12 +131,15 @@ Describe 'Wait-GpuCooldown' {
 
             $result.Status | Should -Be 'TimedOut'
             $result.FinalTemperatureCelsius | Should -Be 55
+            Should -Invoke Start-Sleep -ModuleName GpuCooldownSleep -Times 1 -Exactly
         }
     }
 
     Context 'when selecting by friendly name' {
         BeforeAll {
-            Mock -CommandName Get-GpuCooldownDevice -ModuleName GpuCooldownSleep -MockWith {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
+            Mock -CommandName Get-GpuCooldownDeviceInternal -ModuleName GpuCooldownSleep -MockWith {
                 @(
                     [pscustomobject]@{
                         Provider            = 'Nvidia'
@@ -135,6 +166,9 @@ Describe 'Wait-GpuCooldown' {
                     RetrievedAt         = Get-Date
                 }
             }
+
+            Mock -CommandName Get-GpuCooldownNow -ModuleName GpuCooldownSleep -MockWith { [datetime]'2026-04-09T12:00:00' }
+            Mock -CommandName Start-Sleep -ModuleName GpuCooldownSleep
         }
 
         It 'supports name-based selection' {

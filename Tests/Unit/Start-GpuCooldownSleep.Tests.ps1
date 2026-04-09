@@ -6,6 +6,8 @@ BeforeAll {
 Describe 'Start-GpuCooldownSleep' {
     Context 'when the cooldown target is reached' {
         BeforeAll {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
             Mock -CommandName Wait-GpuCooldown -ModuleName GpuCooldownSleep -MockWith {
                 [pscustomobject]@{
                     Provider                = 'Nvidia'
@@ -64,6 +66,8 @@ Describe 'Start-GpuCooldownSleep' {
 
     Context 'when the cooldown target is not reached before timeout' {
         BeforeAll {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
             Mock -CommandName Wait-GpuCooldown -ModuleName GpuCooldownSleep -MockWith {
                 [pscustomobject]@{
                     Provider                = 'Nvidia'
@@ -95,6 +99,8 @@ Describe 'Start-GpuCooldownSleep' {
 
     Context 'when selecting by friendly name' {
         BeforeAll {
+            Mock -CommandName Assert-GpuCooldownMonitoringSupport -ModuleName GpuCooldownSleep
+
             Mock -CommandName Wait-GpuCooldown -ModuleName GpuCooldownSleep -MockWith {
                 [pscustomobject]@{
                     Provider                = 'Nvidia'

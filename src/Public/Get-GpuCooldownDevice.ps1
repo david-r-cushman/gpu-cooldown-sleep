@@ -33,38 +33,13 @@ function Get-GpuCooldownDevice {
         [string]$Provider
     )
 
-    $providerChecks = Get-GpuCooldownProviderSupportStatus
-    if (-not $providerChecks.IsProviderAvailable) {
-        Write-GpuCooldownVerboseEvent -EventName 'ProviderUnavailable' -Message $providerChecks.Message
-        return @()
+    $internalParameters = @{
+        EmitVerboseEvents = $true
     }
-
-    $supportedProviders = @(
-        @{
-            Name    = 'Nvidia'
-            Command = { Get-NvidiaGpuCooldownDevice }
-        }
-    )
 
     if ($PSBoundParameters.ContainsKey('Provider')) {
-        $supportedProviders = $supportedProviders | Where-Object { $_.Name -eq $Provider }
-        Write-GpuCooldownVerboseEvent -EventName 'DiscoveryScope' -Message "Restricting GPU discovery to provider '$Provider'."
+        $internalParameters.Provider = $Provider
     }
 
-    $discoveredDevices = [System.Collections.Generic.List[object]]::new()
-
-    foreach ($supportedProvider in $supportedProviders) {
-        $providerDevices = & $supportedProvider.Command
-        foreach ($device in $providerDevices) {
-            $null = $discoveredDevices.Add($device)
-        }
-    }
-
-    $supportedDeviceCount = @($discoveredDevices).Count
-
-    foreach ($device in $discoveredDevices) {
-        $device.IsSelectedByDefault = ($supportedDeviceCount -eq 1)
-        Write-GpuCooldownVerboseEvent -EventName 'DeviceDiscovered' -Device $device -Message 'Supported GPU device discovered.'
-        $device
-    }
+    Get-GpuCooldownDeviceInternal @internalParameters
 }

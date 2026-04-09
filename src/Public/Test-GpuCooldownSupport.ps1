@@ -20,13 +20,15 @@ function Test-GpuCooldownSupport {
     [CmdletBinding()]
     param()
 
+    Write-GpuCooldownVerboseEvent -EventName 'SupportCheckStart' -Message 'Evaluating GPU cooldown support for the current environment.'
+
     $providerChecks = Get-GpuCooldownProviderSupportStatus
     $supportedDevices = Get-SupportedGpuCooldownDevicesSafely
 
     $sleepSupport = Test-GpuCooldownSleepSupport
     $keepAwakeSupport = Test-GpuCooldownKeepAwakeSupport
 
-    [pscustomobject]@{
+    $supportSummary = [pscustomobject]@{
         IsSupported              = ($providerChecks.IsProviderAvailable -and $supportedDevices.Count -gt 0)
         IsWindows                = $sleepSupport.IsWindows
         SleepSupported           = $sleepSupport.IsSupported
@@ -40,4 +42,8 @@ function Test-GpuCooldownSupport {
         SleepStatusMessage       = $sleepSupport.Message
         KeepAwakeStatusMessage   = $keepAwakeSupport.Message
     }
+
+    Write-GpuCooldownVerboseEvent -EventName 'SupportCheckComplete' -Message ("Support check complete. Supported={0}; Devices={1}; ProviderAvailable={2}" -f $supportSummary.IsSupported, $supportSummary.SupportedDeviceCount, $supportSummary.ProviderAvailable)
+
+    $supportSummary
 }

@@ -114,21 +114,25 @@ function Start-GpuCooldownSleep {
 
         try {
             if ($PreventSystemSleep.IsPresent) {
+                Write-GpuCooldownVerboseEvent -EventName 'KeepAwakeRequest' -Message 'Requesting temporary keep-awake behavior during cooldown monitoring.'
                 $keepAwakeToken = Request-SystemAwake
             }
 
             $waitResult = Wait-GpuCooldown @waitParameters
 
             if ($waitResult.Status -ne 'TargetReached') {
+                Write-GpuCooldownVerboseEvent -EventName 'SleepNotAttempted' -Message ("Sleep was not attempted because cooldown finished with status '{0}'." -f $waitResult.Status)
                 return New-GpuCooldownSleepResultObject -WaitResult $waitResult -SleepAction 'NotAttempted'
             }
 
             $sleepAction = 'NotAttempted'
             if ($PSCmdlet.ShouldProcess($waitResult.Name, "Put system to sleep after GPU cooldown reached ${TargetTemperature}C")) {
+                Write-GpuCooldownVerboseEvent -EventName 'SleepRequested' -Message ('Sleep request accepted for device ''{0}''.' -f $waitResult.Name)
                 Start-SystemSleep
                 $sleepAction = 'Requested'
             }
             else {
+                Write-GpuCooldownVerboseEvent -EventName 'SleepSkipped' -Message ('Sleep request was skipped for device ''{0}''.' -f $waitResult.Name)
                 $sleepAction = 'Skipped'
             }
 
@@ -136,6 +140,7 @@ function Start-GpuCooldownSleep {
         }
         finally {
             if ($null -ne $keepAwakeToken) {
+                Write-GpuCooldownVerboseEvent -EventName 'KeepAwakeRestore' -Message 'Restoring normal system sleep behavior.'
                 Restore-SystemAwakeState -Token $keepAwakeToken
             }
         }

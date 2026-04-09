@@ -97,8 +97,8 @@ function Wait-GpuCooldown {
         $startedAt = Get-Date
         $timeoutAt = $startedAt.AddMinutes($TimeoutMinutes)
 
-        Write-Verbose "Monitoring device '$($device.Name)' with target temperature ${TargetTemperature}C."
-        Write-Verbose "Polling every $PollIntervalSeconds seconds until $timeoutAt."
+        Write-GpuCooldownVerboseEvent -EventName 'CooldownWaitStart' -Device $device -Message ("Monitoring started with target temperature {0}C." -f $TargetTemperature)
+        Write-GpuCooldownVerboseEvent -EventName 'CooldownWaitPlan' -Device $device -Message ("Polling every {0} seconds until {1}." -f $PollIntervalSeconds, $timeoutAt)
 
         try {
             do {
@@ -111,14 +111,16 @@ function Wait-GpuCooldown {
                 }
 
                 if ($temperatureReading.TemperatureCelsius -le $TargetTemperature) {
+                    Write-GpuCooldownVerboseEvent -EventName 'CooldownTargetReached' -Device $device -Message ("Target reached at {0}C." -f $temperatureReading.TemperatureCelsius)
                     return New-GpuCooldownWaitResultObject -Device $device -TemperatureReading $temperatureReading -TargetTemperature $TargetTemperature -StartedAt $startedAt -CompletedAt $currentTime -Status 'TargetReached'
                 }
 
                 if ($currentTime -ge $timeoutAt) {
+                    Write-GpuCooldownVerboseEvent -EventName 'CooldownTimedOut' -Device $device -Message ("Timeout reached at {0}C." -f $temperatureReading.TemperatureCelsius)
                     return New-GpuCooldownWaitResultObject -Device $device -TemperatureReading $temperatureReading -TargetTemperature $TargetTemperature -StartedAt $startedAt -CompletedAt $currentTime -Status 'TimedOut'
                 }
 
-                Write-Verbose ("Current temperature for '{0}' is {1}C after {2:n1} seconds." -f $device.Name, $temperatureReading.TemperatureCelsius, $elapsed.TotalSeconds)
+                Write-GpuCooldownVerboseEvent -EventName 'CooldownWaitPoll' -Device $device -Message ("Current temperature is {0}C after {1:n1} seconds." -f $temperatureReading.TemperatureCelsius, $elapsed.TotalSeconds)
                 Start-Sleep -Seconds $PollIntervalSeconds
             }
             while ($true)

@@ -71,10 +71,13 @@ function Get-GpuCooldownTemperature {
         }
 
         $device = Resolve-GpuCooldownDevice @resolveParameters
+        Write-GpuCooldownVerboseEvent -EventName 'TemperatureQueryStart' -Device $device -Message 'Querying current GPU temperature.'
 
         switch ($device.Provider) {
             'Nvidia' {
-                Get-NvidiaGpuCooldownTemperature -Device $device
+                $temperatureReading = Get-NvidiaGpuCooldownTemperature -Device $device
+                Write-GpuCooldownVerboseEvent -EventName 'TemperatureQueryComplete' -Device $device -Message ("Current temperature is {0}C." -f $temperatureReading.TemperatureCelsius)
+                $temperatureReading
             }
             default {
                 throw "Provider '$($device.Provider)' is not supported for temperature retrieval."

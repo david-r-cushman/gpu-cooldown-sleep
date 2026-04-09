@@ -24,6 +24,12 @@ The initial problem this project is trying to solve is narrow and practical:
 
 The first implementation will likely be NVIDIA-first because that is the hardware currently available for testing, but the repository is intentionally being shaped so that additional GPU providers can be added later.
 
+## Requirements
+
+- Windows (this module ultimately coordinates system sleep)
+- PowerShell 7.4+
+- NVIDIA GPU with `nvidia-smi` available (current provider implementation)
+
 ## Current Commands
 
 The module currently exports these commands:
@@ -43,12 +49,14 @@ These commands provide the first end-to-end slice of the workflow:
 
 The current provider implementation is NVIDIA-based and uses `nvidia-smi`.
 
-## Current Usage
+For the next-stage direction on provider extensibility and observability, see [`docs/observability-and-provider-model.md`](docs/observability-and-provider-model.md).
+
+## Current Usage (Development)
 
 Import the module from the repository root during development:
 
 ```powershell
-Import-Module .\GpuCooldownSleep.psd1 -Force
+Import-Module .\GpuCooldownSleep -Force
 ```
 
 Discover the supported GPU device:
@@ -67,6 +75,12 @@ Get the current temperature for the default supported device:
 
 ```powershell
 Get-GpuCooldownTemperature
+```
+
+Target a GPU by module-stable device id:
+
+```powershell
+Get-GpuCooldownTemperature -DeviceId 'nvidia:00000000:01:00.0'
 ```
 
 Target a GPU by friendly name:
@@ -110,8 +124,8 @@ Verbose output is intended for operator confidence and troubleshooting. The stru
 
 This repository is expected to grow into a properly organized PowerShell module with:
 
-- public commands under [`src/Public`](src/Public)
-- shared helpers under [`src/Private`](src/Private)
+- public commands under [`GpuCooldownSleep/src/Public`](GpuCooldownSleep/src/Public)
+- shared helpers under [`GpuCooldownSleep/src/Private`](GpuCooldownSleep/src/Private)
 - tests under [`Tests`](Tests)
 - supporting notes under [`docs`](docs)
 
@@ -142,4 +156,4 @@ If developed well, it can demonstrate the ability to:
 - The repository was created from [`pwsh-dev-template`](https://github.com/david-r-cushman/pwsh-dev-template).
 - The starting direction for this repo intentionally favors clarity and structure over trying to rush straight into implementation.
 - Earlier rough-draft work is being treated as reference material, not as code that must be migrated directly.
-- Pester tests are being added alongside each public command, although test execution in some local environments may still require attention depending on registry access constraints.
+- Pester tests are being added alongside each public command. If your environment restricts registry access, run unit tests via `pwsh -File .\Tests\Invoke-UnitTests.ps1`.

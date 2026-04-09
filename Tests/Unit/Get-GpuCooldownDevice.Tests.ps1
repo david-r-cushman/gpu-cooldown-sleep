@@ -1,5 +1,7 @@
 BeforeAll {
-    $moduleManifestPath = Join-Path -Path $PSScriptRoot -ChildPath '..\..\GpuCooldownSleep.psd1'
+    $repoRoot = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+    $moduleRoot = Join-Path -Path $repoRoot -ChildPath 'GpuCooldownSleep'
+    $moduleManifestPath = Join-Path -Path $moduleRoot -ChildPath 'GpuCooldownSleep.psd1'
     Import-Module -Name $moduleManifestPath -Force
 }
 

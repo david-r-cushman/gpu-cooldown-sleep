@@ -1,5 +1,6 @@
-$publicPath = Join-Path -Path $PSScriptRoot -ChildPath 'src\Public'
-$privatePath = Join-Path -Path $PSScriptRoot -ChildPath 'src\Private'
+$srcPath = Join-Path -Path $PSScriptRoot -ChildPath 'src'
+$publicPath = Join-Path -Path $srcPath -ChildPath 'Public'
+$privatePath = Join-Path -Path $srcPath -ChildPath 'Private'
 
 $privateFiles = Get-ChildItem -Path $privatePath -Filter '*.ps1' -File -ErrorAction SilentlyContinue | Sort-Object -Property Name
 foreach ($file in $privateFiles) {

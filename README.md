@@ -41,6 +41,11 @@ This repository is expected to grow into a properly organized PowerShell module 
 - tests under [`Tests`](Tests)
 - supporting notes under [`docs`](docs)
 
+The first module slices currently in progress are:
+
+- `Get-GpuCooldownDevice`
+- `Get-GpuCooldownTemperature`
+
 The goal is to build this as a maintainable PowerShell project, not leave it as a single experimental script.
 
 ## Non-Goals

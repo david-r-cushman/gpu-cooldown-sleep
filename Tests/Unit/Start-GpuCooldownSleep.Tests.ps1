@@ -52,6 +52,12 @@ Describe 'Start-GpuCooldownSleep' {
             Should -Invoke Request-SystemAwake -ModuleName GpuCooldownSleep -Times 1 -Exactly
             Should -Invoke Restore-SystemAwakeState -ModuleName GpuCooldownSleep -Times 1 -Exactly
         }
+
+        It 'passes progress display through to the wait command when requested' {
+            $null = Start-GpuCooldownSleep -TargetTemperature 40 -ShowProgress -Confirm:$false
+
+            Should -Invoke Wait-GpuCooldown -ModuleName GpuCooldownSleep -ParameterFilter { $ShowProgress -eq $true } -Times 1 -Exactly
+        }
     }
 
     Context 'when the cooldown target is not reached before timeout' {

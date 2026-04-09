@@ -65,13 +65,13 @@ Get-GpuCooldownTemperature
 Wait for the GPU to cool to a target temperature without changing system power state:
 
 ```powershell
-Wait-GpuCooldown -TargetTemperature 40 -PollIntervalSeconds 10 -TimeoutMinutes 15
+Wait-GpuCooldown -TargetTemperature 40 -PollIntervalSeconds 10 -TimeoutMinutes 15 -ShowProgress
 ```
 
 Exercise the full sleep command safely with `-WhatIf`:
 
 ```powershell
-Start-GpuCooldownSleep -TargetTemperature 40 -PreventSystemSleep -WhatIf
+Start-GpuCooldownSleep -TargetTemperature 40 -PreventSystemSleep -ShowProgress -WhatIf
 ```
 
 ## Design Priorities

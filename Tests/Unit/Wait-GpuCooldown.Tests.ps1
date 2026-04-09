@@ -41,6 +41,8 @@ Describe 'Wait-GpuCooldown' {
             }
 
             Mock -CommandName Start-Sleep -ModuleName GpuCooldownSleep
+            Mock -CommandName Update-GpuCooldownProgress -ModuleName GpuCooldownSleep
+            Mock -CommandName Clear-GpuCooldownProgress -ModuleName GpuCooldownSleep
         }
 
         It 'returns a target reached result' {
@@ -49,6 +51,17 @@ Describe 'Wait-GpuCooldown' {
             $result.Status | Should -Be 'TargetReached'
             $result.FinalTemperatureCelsius | Should -Be 40
             Should -Invoke Start-Sleep -ModuleName GpuCooldownSleep -Times 2 -Exactly
+        }
+
+        It 'updates and clears progress when ShowProgress is requested' {
+            $script:temperatureSequence = [System.Collections.Generic.Queue[int]]::new()
+            $script:temperatureSequence.Enqueue(48)
+            $script:temperatureSequence.Enqueue(40)
+
+            $null = Wait-GpuCooldown -TargetTemperature 40 -PollIntervalSeconds 1 -TimeoutMinutes 5 -ShowProgress
+
+            Should -Invoke Update-GpuCooldownProgress -ModuleName GpuCooldownSleep -Times 2
+            Should -Invoke Clear-GpuCooldownProgress -ModuleName GpuCooldownSleep -Times 1 -Exactly
         }
     }
 
@@ -81,6 +94,8 @@ Describe 'Wait-GpuCooldown' {
             }
 
             Mock -CommandName Start-Sleep -ModuleName GpuCooldownSleep
+            Mock -CommandName Update-GpuCooldownProgress -ModuleName GpuCooldownSleep
+            Mock -CommandName Clear-GpuCooldownProgress -ModuleName GpuCooldownSleep
         }
 
         It 'returns a timed out result when no cooldown occurs' {

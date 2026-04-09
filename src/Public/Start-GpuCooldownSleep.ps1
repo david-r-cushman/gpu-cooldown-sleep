@@ -28,6 +28,9 @@ function Start-GpuCooldownSleep {
 .PARAMETER PreventSystemSleep
     Requests that the operating system remain awake while cooldown monitoring is active.
 
+.PARAMETER ShowProgress
+    Displays an interactive progress view while cooldown monitoring is active.
+
 .EXAMPLE
     Start-GpuCooldownSleep -TargetTemperature 40 -WhatIf
 
@@ -65,7 +68,10 @@ function Start-GpuCooldownSleep {
         [int]$TimeoutMinutes = 15,
 
         [Parameter()]
-        [switch]$PreventSystemSleep
+        [switch]$PreventSystemSleep,
+
+        [Parameter()]
+        [switch]$ShowProgress
     )
 
     process {
@@ -74,6 +80,10 @@ function Start-GpuCooldownSleep {
             PollIntervalSeconds = $PollIntervalSeconds
             TimeoutMinutes      = $TimeoutMinutes
             Verbose             = $VerbosePreference -ne 'SilentlyContinue'
+        }
+
+        if ($ShowProgress.IsPresent) {
+            $waitParameters.ShowProgress = $true
         }
 
         if ($PSCmdlet.ParameterSetName -eq 'InputObject') {

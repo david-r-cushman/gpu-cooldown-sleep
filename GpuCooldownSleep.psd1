@@ -10,6 +10,8 @@
     FunctionsToExport = @(
         'Get-GpuCooldownDevice'
         'Get-GpuCooldownTemperature'
+        'Wait-GpuCooldown'
+        'Start-GpuCooldownSleep'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()

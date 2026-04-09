@@ -89,6 +89,15 @@ Start-GpuCooldownSleep -TargetTemperature 40 -PreventSystemSleep -ShowProgress -
 
 The `-Name` parameter is intended to be the friendlier interactive selection path, while `-DeviceId` remains the more stable automation-oriented selector.
 
+## Verbose Output
+
+This module uses `Write-Verbose` for structured, event-style diagnostics.
+
+- `Get-GpuCooldownDevice -Verbose` emits `DeviceDiscovered` events as it enumerates supported GPUs.
+- Commands that need to select a single GPU emit a single `DeviceSelected` event to confirm which device will be monitored.
+
+Verbose output is intended for operator confidence and troubleshooting. The structured objects returned from the commands remain the source of truth for automation.
+
 ## Design Priorities
 
 - vendor-neutral project structure

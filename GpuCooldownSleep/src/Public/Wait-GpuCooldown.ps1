@@ -1,0 +1,134 @@
+function Wait-GpuCooldown {
+<#
+.SYNOPSIS
+    Monitors GPU temperature until a target threshold is reached or a timeout occurs.
+
+.DESCRIPTION
+    Polls the current GPU temperature for a selected supported device at a configurable
+    interval and returns a structured result when the target temperature is reached or
+    the maximum wait time expires. This command does not change system power state. It
+    exists to provide a safe orchestration layer that can be validated independently
+    before sleep behavior is introduced.
+
+.PARAMETER TargetTemperature
+    The target GPU temperature in degrees Celsius.
+
+.PARAMETER InputObject
+    A GPU device object previously returned by `Get-GpuCooldownDevice`.
+
+.PARAMETER DeviceId
+    The module-level device identifier for the GPU to monitor.
+
+.PARAMETER Name
+    The friendly GPU name to monitor.
+
+.PARAMETER PollIntervalSeconds
+    The number of seconds to wait between temperature checks.
+
+.PARAMETER TimeoutMinutes
+    The maximum number of minutes to wait before returning a timeout result.
+
+.PARAMETER ShowProgress
+    Displays an interactive progress view while cooldown monitoring is active.
+
+.EXAMPLE
+    Wait-GpuCooldown -TargetTemperature 40
+
+    Waits for the single supported GPU to cool to 40C or until the timeout is reached.
+
+.EXAMPLE
+    Get-GpuCooldownDevice | Wait-GpuCooldown -TargetTemperature 38 -ShowProgress
+
+    Waits for the supplied GPU device to reach the target temperature.
+
+.EXAMPLE
+    Wait-GpuCooldown -Name 'NVIDIA GeForce RTX 2070 SUPER' -TargetTemperature 40
+
+    Waits for the specified GPU device by friendly name.
+
+.OUTPUTS
+    PSCustomObject
+#>
+    [CmdletBinding(DefaultParameterSetName = 'Auto')]
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(1, 200)]
+        [int]$TargetTemperature,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'InputObject')]
+        [ValidateNotNull()]
+        [psobject]$InputObject,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'DeviceId')]
+        [ValidateNotNullOrEmpty()]
+        [string]$DeviceId,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+
+        [Parameter()]
+        [ValidateRange(1, 3600)]
+        [int]$PollIntervalSeconds = 10,
+
+        [Parameter()]
+        [ValidateRange(1, 1440)]
+        [int]$TimeoutMinutes = 15,
+
+        [Parameter()]
+        [switch]$ShowProgress
+    )
+
+    process {
+        Assert-GpuCooldownMonitoringSupport
+
+        $resolveParameters = @{}
+        if ($PSCmdlet.ParameterSetName -eq 'InputObject') {
+            $resolveParameters.InputObject = $InputObject
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'DeviceId') {
+            $resolveParameters.DeviceId = $DeviceId
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq 'Name') {
+            $resolveParameters.Name = $Name
+        }
+
+        $device = Resolve-GpuCooldownDevice @resolveParameters
+        $startedAt = Get-GpuCooldownNow
+        $timeoutAt = $startedAt.AddMinutes($TimeoutMinutes)
+
+        Write-GpuCooldownVerboseEvent -EventName 'CooldownWaitStart' -Device $device -Message ("Monitoring started with target temperature {0}C." -f $TargetTemperature)
+        Write-GpuCooldownVerboseEvent -EventName 'CooldownWaitPlan' -Device $device -Message ("Polling every {0} seconds until {1}." -f $PollIntervalSeconds, $timeoutAt)
+
+        try {
+            do {
+                $temperatureReading = Get-GpuCooldownTemperature -InputObject $device
+                $currentTime = Get-GpuCooldownNow
+                $elapsed = $currentTime - $startedAt
+
+                if ($ShowProgress.IsPresent) {
+                    Update-GpuCooldownProgress -Device $device -TemperatureReading $temperatureReading -TargetTemperature $TargetTemperature -StartedAt $startedAt -TimeoutAt $timeoutAt
+                }
+
+                if ($temperatureReading.TemperatureCelsius -le $TargetTemperature) {
+                    Write-GpuCooldownVerboseEvent -EventName 'CooldownTargetReached' -Device $device -Message ("Target reached at {0}C." -f $temperatureReading.TemperatureCelsius)
+                    return New-GpuCooldownWaitResultObject -Device $device -TemperatureReading $temperatureReading -TargetTemperature $TargetTemperature -StartedAt $startedAt -CompletedAt $currentTime -Status 'TargetReached'
+                }
+
+                if ($currentTime -ge $timeoutAt) {
+                    Write-GpuCooldownVerboseEvent -EventName 'CooldownTimedOut' -Device $device -Message ("Timeout reached at {0}C." -f $temperatureReading.TemperatureCelsius)
+                    return New-GpuCooldownWaitResultObject -Device $device -TemperatureReading $temperatureReading -TargetTemperature $TargetTemperature -StartedAt $startedAt -CompletedAt $currentTime -Status 'TimedOut'
+                }
+
+                Write-GpuCooldownVerboseEvent -EventName 'CooldownWaitPoll' -Device $device -Message ("Current temperature is {0}C after {1:n1} seconds." -f $temperatureReading.TemperatureCelsius, $elapsed.TotalSeconds)
+                Start-Sleep -Seconds $PollIntervalSeconds
+            }
+            while ($true)
+        }
+        finally {
+            if ($ShowProgress.IsPresent) {
+                Clear-GpuCooldownProgress
+            }
+        }
+    }
+}

@@ -8,11 +8,14 @@ The project started from a real personal need: after GPU-intensive work ends, th
 
 ## Current Status
 
-This repository is in active early development.
+The module is functional and actively evolving.
 
-The initial module scaffold and first command set now exist, but the project is still in its first implementation phase.
+The core workflow is implemented end-to-end (device discovery, temperature polling, cooldown waiting, and safe sleep orchestration), and unit tests run in CI via GitHub Actions.
 
-For the current design intent, see [`docs/project-direction.md`](docs/project-direction.md).
+For the original design intent and the next-stage direction, see:
+
+- [`docs/project-direction.md`](docs/project-direction.md)
+- [`docs/observability-and-provider-model.md`](docs/observability-and-provider-model.md)
 
 ## Problem Space
 
@@ -24,7 +27,7 @@ The initial problem this project is trying to solve is narrow and practical:
 - provide useful progress feedback while waiting
 - put the system to sleep safely once the target condition is met
 
-The first implementation will likely be NVIDIA-first because that is the hardware currently available for testing, but the repository is intentionally being shaped so that additional GPU providers can be added later.
+The current implementation is NVIDIA-first because that is the hardware currently available for testing, but the repository is intentionally being shaped so that additional GPU providers can be added later.
 
 ## Requirements
 
@@ -51,14 +54,18 @@ These commands provide the first end-to-end slice of the workflow:
 
 The current provider implementation is NVIDIA-based and uses `nvidia-smi`.
 
-For the next-stage direction on provider extensibility and observability, see [`docs/observability-and-provider-model.md`](docs/observability-and-provider-model.md).
-
-## Current Usage (Development)
+## Usage
 
 Import the module from the repository root during development:
 
 ```powershell
 Import-Module .\GpuCooldownSleep -Force
+```
+
+Optionally, install it for normal imports by copying `.\GpuCooldownSleep\` into a path on `$env:PSModulePath`, then:
+
+```powershell
+Import-Module GpuCooldownSleep -Force
 ```
 
 Discover the supported GPU device:
@@ -97,6 +104,12 @@ Wait for the GPU to cool to a target temperature without changing system power s
 Wait-GpuCooldown -TargetTemperature 40 -PollIntervalSeconds 10 -TimeoutMinutes 15 -ShowProgress
 ```
 
+Show structured diagnostics while monitoring:
+
+```powershell
+Start-GpuCooldownSleep -TargetTemperature 40 -ShowProgress -Verbose
+```
+
 Exercise the full sleep command safely with `-WhatIf`:
 
 ```powershell
@@ -122,16 +135,15 @@ Verbose output is intended for operator confidence and troubleshooting. The stru
 - useful observability during cooldown monitoring
 - testable orchestration logic
 
-## Intended Shape
+## Repository Layout
 
-This repository is expected to grow into a properly organized PowerShell module with:
+This repository is organized as a PowerShell module with:
 
+- the module under [`GpuCooldownSleep`](GpuCooldownSleep)
 - public commands under [`GpuCooldownSleep/src/Public`](GpuCooldownSleep/src/Public)
 - shared helpers under [`GpuCooldownSleep/src/Private`](GpuCooldownSleep/src/Private)
 - tests under [`Tests`](Tests)
 - supporting notes under [`docs`](docs)
-
-The goal is to build this as a maintainable PowerShell project, not leave it as a single experimental script.
 
 ## Non-Goals
 
@@ -144,7 +156,7 @@ The initial version of this project is not intended to be:
 
 ## Why This Repo Exists
 
-This project may or may not eventually earn a place in the public portfolio, but it is absolutely worth pursuing as a real engineering exercise.
+This project is a portfolio-grade PowerShell module built around a real operational need: safely handing off from GPU-intensive work to system sleep once hardware has cooled.
 
 If developed well, it can demonstrate the ability to:
 
@@ -158,4 +170,4 @@ If developed well, it can demonstrate the ability to:
 - The repository was created from [`pwsh-dev-template`](https://github.com/david-r-cushman/pwsh-dev-template).
 - The starting direction for this repo intentionally favors clarity and structure over trying to rush straight into implementation.
 - Earlier rough-draft work is being treated as reference material, not as code that must be migrated directly.
-- Pester tests are being added alongside each public command. If your environment restricts registry access, run unit tests via `pwsh -File .\Tests\Invoke-UnitTests.ps1`.
+- Pester unit tests run in GitHub Actions and can be run locally via `pwsh -File .\Tests\Invoke-UnitTests.ps1`.

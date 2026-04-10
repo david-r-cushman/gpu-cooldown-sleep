@@ -1,5 +1,7 @@
 # GPU Cooldown Sleep
 
+[![Pester](https://github.com/david-r-cushman/gpu-cooldown-sleep/actions/workflows/pester.yml/badge.svg?branch=main)](https://github.com/david-r-cushman/gpu-cooldown-sleep/actions/workflows/pester.yml)
+
 This repository is a PowerShell project for monitoring GPU temperature and putting a Windows system to sleep once the GPU has cooled to a defined target.
 
 The project started from a real personal need: after GPU-intensive work ends, the system may still be too warm to sleep immediately. Rather than manually watching temperatures and waiting, the goal is to automate that handoff safely.

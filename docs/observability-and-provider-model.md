@@ -2,6 +2,8 @@
 
 This document captures the next-stage design direction for `gpu-cooldown-sleep` now that the initial command surface exists.
 
+As of April 10, 2026, the end-to-end workflow is implemented (including progress and verbose diagnostics). This document remains intentionally forward-looking so that future providers and richer diagnostics evolve from consistent, provider-neutral shapes.
+
 The current implementation already supports:
 
 - device discovery
@@ -9,6 +11,11 @@ The current implementation already supports:
 - cooldown waiting
 - sleep orchestration
 - support validation
+
+Operator visibility is available via:
+
+- `-ShowProgress` for an interactive progress UI during waits
+- `-Verbose` for event-style diagnostics (for example, `DeviceDiscovered`, `DeviceSelected`, and cooldown/sleep lifecycle events)
 
 The next design challenge is to make future provider expansion, logging, and user-facing progress behavior evolve from a shared model instead of as unrelated features.
 
@@ -141,6 +148,12 @@ If persistent logging is added later, it should likely be designed around the sa
 - sleep failed
 
 That would make future logging align naturally with both verbose output and result objects.
+
+If/when a dedicated logging surface is added, it should be designed to complement (not replace) the existing observability model:
+
+- structured output remains the automation contract
+- progress remains interactive and optional
+- verbose remains a lightweight diagnostic stream
 
 ## Near-Term Implementation Guidance
 

@@ -45,6 +45,7 @@ Describe 'Test-GpuCooldownSupport' {
             $result = Test-GpuCooldownSupport
 
             $result.IsSupported | Should -BeTrue
+            $result.MonitoringSupported | Should -BeTrue
             $result.SupportedDeviceCount | Should -Be 1
             $result.ProviderAvailable | Should -BeTrue
             $result.SleepSupported | Should -BeTrue
@@ -85,6 +86,7 @@ Describe 'Test-GpuCooldownSupport' {
             $result = Test-GpuCooldownSupport
 
             $result.IsSupported | Should -BeFalse
+            $result.MonitoringSupported | Should -BeFalse
             $result.ProviderAvailable | Should -BeFalse
             $result.ProviderStatusMessage | Should -Be 'nvidia-smi was not found.'
         }

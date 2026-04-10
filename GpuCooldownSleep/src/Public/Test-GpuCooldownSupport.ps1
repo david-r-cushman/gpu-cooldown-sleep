@@ -28,8 +28,12 @@ function Test-GpuCooldownSupport {
     $sleepSupport = Test-GpuCooldownSleepSupport
     $keepAwakeSupport = Test-GpuCooldownKeepAwakeSupport
 
+    $monitoringSupported = ($providerChecks.IsProviderAvailable -and $supportedDevices.Count -gt 0)
+    $sleepWorkflowSupported = ($monitoringSupported -and $sleepSupport.IsSupported)
+
     $supportSummary = [pscustomobject]@{
-        IsSupported              = ($providerChecks.IsProviderAvailable -and $supportedDevices.Count -gt 0)
+        IsSupported              = $sleepWorkflowSupported
+        MonitoringSupported      = $monitoringSupported
         IsWindows                = $sleepSupport.IsWindows
         SleepSupported           = $sleepSupport.IsSupported
         KeepAwakeSupported       = $keepAwakeSupport.IsSupported
@@ -43,7 +47,7 @@ function Test-GpuCooldownSupport {
         KeepAwakeStatusMessage   = $keepAwakeSupport.Message
     }
 
-    Write-GpuCooldownVerboseEvent -EventName 'SupportCheckComplete' -Message ("Support check complete. Supported={0}; Devices={1}; ProviderAvailable={2}" -f $supportSummary.IsSupported, $supportSummary.SupportedDeviceCount, $supportSummary.ProviderAvailable)
+    Write-GpuCooldownVerboseEvent -EventName 'SupportCheckComplete' -Message ("Support check complete. Supported={0}; MonitoringSupported={1}; Devices={2}; ProviderAvailable={3}" -f $supportSummary.IsSupported, $supportSummary.MonitoringSupported, $supportSummary.SupportedDeviceCount, $supportSummary.ProviderAvailable)
 
     $supportSummary
 }

@@ -1,8 +1,10 @@
 # Project Direction
 
-This document captures the intended direction for `gpu-cooldown-sleep` before the module implementation is built out.
+This document captures the intended direction for `gpu-cooldown-sleep` before the module implementation was built out.
 
 The goal is to preserve the worthwhile ideas from the earlier rough draft while starting this repository from a cleaner, more deliberate foundation.
+
+As of April 10, 2026, the first end-to-end implementation exists. This document is retained as the original direction and evaluation criteria, with a short “Current State” section added for alignment.
 
 ## Problem Statement
 
@@ -16,7 +18,7 @@ CPU load may eventually be used as a supporting heuristic, but CPU temperature i
 
 ## Initial Scope
 
-The first usable version of this project should focus on:
+The first usable version of this project focused on:
 
 - querying GPU temperature from a supported provider
 - waiting until a target temperature is reached
@@ -24,7 +26,7 @@ The first usable version of this project should focus on:
 - providing clear progress or status feedback while waiting
 - putting the system to sleep safely once the threshold condition is met
 
-The initial implementation can be NVIDIA-first if that is the only hardware currently available for testing, but the repository structure should remain vendor-neutral.
+The initial implementation is NVIDIA-first because that is the only hardware currently available for testing, but the repository structure remains vendor-neutral.
 
 ## Design Goals
 
@@ -34,7 +36,7 @@ Even if NVIDIA is the first implemented provider, the project should be organize
 
 ### PowerShell Module Discipline
 
-This should grow into a properly organized PowerShell project rather than remain a single script with embedded logic. Public commands, private helpers, tests, and documentation should all have a clear place.
+This is organized as a PowerShell module rather than a single script. Public commands, private helpers, tests, and documentation have a clear place in the repository.
 
 ### Safe Power-State Control
 
@@ -72,9 +74,9 @@ Whether the final implementation uses functions or classes should be decided bas
 
 ## Portfolio Worthiness Criteria
 
-This project should only be considered for future portfolio inclusion if it grows into more than a clever personal script.
+This project is included in the portfolio because it grew into more than a clever personal script.
 
-The signals that would make it portfolio-worthy are:
+The signals that made it portfolio-worthy include:
 
 - disciplined module design
 - hardware and tool abstraction
@@ -83,7 +85,17 @@ The signals that would make it portfolio-worthy are:
 - useful observability or logging
 - tests around parsing, orchestration, and timeout behavior
 
-If the project reaches that level, it can demonstrate the ability to take a niche real-world problem and turn it into reliable, maintainable PowerShell automation with guardrails.
+This project demonstrates the ability to take a niche real-world problem and turn it into reliable, maintainable PowerShell automation with guardrails.
+
+## Current State (April 10, 2026)
+
+The repository now contains:
+
+- a packaged module under `GpuCooldownSleep\`
+- public commands for device discovery, temperature retrieval, cooldown waiting, sleep orchestration, and support checks
+- an NVIDIA provider integration backed by `nvidia-smi`
+- operator observability via `-ShowProgress` and `-Verbose` event-style diagnostics
+- Pester unit tests runnable locally and in GitHub Actions CI
 
 ## Practical Direction
 

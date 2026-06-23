@@ -166,6 +166,15 @@ If developed well, it can demonstrate the ability to:
 - structure provider-specific logic cleanly
 - turn a rough utility idea into a maintainable PowerShell module
 
+## Project Versioning
+
+This repository versions the GPU Cooldown Sleep project itself using Semantic Versioning.
+
+- Current project version: see [`VERSION`](VERSION)
+- Version history: see [`CHANGELOG.md`](CHANGELOG.md)
+
+The project version is separate from the template-version badge at the top of this README. The badge records the `pwsh-dev-template` guidance version used for synced AI guidance and guardrails.
+
 ## Development Notes
 
 - The repository was created from [`pwsh-dev-template`](https://github.com/david-r-cushman/pwsh-dev-template).

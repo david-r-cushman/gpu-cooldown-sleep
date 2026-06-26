@@ -10,6 +10,8 @@ This project uses Semantic Versioning for the project itself. The project versio
 
 ### Changed
 
+- Hardened the Pester GitHub Actions workflow to re-register `PSGallery` when missing before installing pinned `Pester 5.7.1`.
+
 ## 0.1.0 - 2026-06-22
 
 ### Added

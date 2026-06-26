@@ -26,8 +26,6 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $pesterVersion = '5.7.1'
 
-          Install-PackageProvider -Name NuGet -Force -Scope CurrentUser | Out-Null
-
           $psGallery = Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue
           if (-not $psGallery) {
               Register-PSRepository -Default

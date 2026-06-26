@@ -17,6 +17,7 @@ For the original design intent and the next-stage direction, see:
 
 - [`docs/project-direction.md`](docs/project-direction.md)
 - [`docs/observability-and-provider-model.md`](docs/observability-and-provider-model.md)
+- [`docs/module-architecture-overview.md`](docs/module-architecture-overview.md)
 
 ## Problem Space
 

@@ -1,0 +1,16 @@
+{
+  "runtime": {
+    "powershellVersion": "7.4",
+    "powershellVersionLabel": "7.4.x",
+    "developmentHost": "PowerShell 7.4.x on Windows for module development and execution",
+    "buildPlatform": "Windows host"
+  },
+  "githubActions": {
+    "runnerImage": "windows-latest"
+  },
+  "tooling": {
+    "pesterVersion": "6.0.0",
+    "psScriptAnalyzerVersion": "1.25.0",
+    "psReadLineVersion": "2.4.5"
+  }
+}

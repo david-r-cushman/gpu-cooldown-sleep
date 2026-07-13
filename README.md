@@ -1,7 +1,7 @@
 # GPU Cooldown Sleep
 
-[![CI](https://github.com/david-r-cushman/gpu-cooldown-sleep/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/david-r-cushman/gpu-cooldown-sleep/actions/workflows/ci.yml)
-![PowerShell 7.4](https://img.shields.io/badge/PowerShell-7.4-blue)
+[![CI](https://github.com/david-r-cushman/gpu-cooldown-sleep/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/david-r-cushman/gpu-cooldown-sleep/actions/workflows/ci.yml)<br>
+![PowerShell 7.4](https://img.shields.io/badge/PowerShell-7.4-blue)<br>
 ![Template Version](https://img.shields.io/badge/template-0.15.0-blue)
 
 This repository is a PowerShell project for monitoring GPU temperature and putting a Windows system to sleep once the GPU has cooled to a defined target.

@@ -6,6 +6,11 @@ This project uses Semantic Versioning for the project itself. The project versio
 
 ## Unreleased
 
+### Changed
+
+- Synced the downstream guidance baseline to template 0.15.0 and aligned the repo's Windows CI contract around tracked ci.yml, actions/checkout@v7, and Pester 6.0.0.
+
+
 ### Added
 
 ### Changed

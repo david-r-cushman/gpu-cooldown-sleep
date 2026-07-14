@@ -18,7 +18,6 @@ Quick navigation:
 - [Validation And Maintenance](#validation-and-maintenance)
 - [Repository Structure](#repository-structure)
 
-
 ## Portfolio Context
 
 This repository is part of a PowerShell portfolio built from `pwsh-dev-template`, and it is centered on a real operational need rather than a generic sample. It demonstrates safe automation around system power state, provider-aware hardware polling, and the discipline required to turn a narrow utility into a maintainable PowerShell module.
